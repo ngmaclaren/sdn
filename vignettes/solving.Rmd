@@ -10,7 +10,7 @@ lout <- 100
 
 # Motivation
 
-The *deSolve* package is fantastic for simulating deterministic ordinary differential equations (ODEs): it's fast, has great documentation, easy to use (compared to other solvers I have tried), and has convenient output data. A recommended stochastic differential equation package, *sde*, appeared more difficult. Additionally, I often need to evaluate a chosen model as either an ODE or an SDE across a range of parameter values. The *localsolver* package is a simple package that implements the Euler-Maruyama method for solving (Itô calculus) SDEs and provides a function which solves the same ODE or SDE with the same model parameters across a range of a control parameter.
+The *deSolve* package is fantastic for simulating deterministic ordinary differential equations (ODEs): it's fast, has great documentation, easy to use (compared to other solvers I have tried), and has convenient output data. A recommended stochastic differential equation package, *sde*, didn't fit easily into my workflow. Additionally, I often need to evaluate a chosen model as either an ODE or an SDE across a range of parameter values. The *localsolver* package is a simple package that implements the Euler-Maruyama method for solving (Itô calculus) SDEs and provides a function which solves the same ODE or SDE with the same model parameters across a range of a control parameter.
 
 # Solving a simple ODE
 
@@ -34,7 +34,7 @@ growth <- function(t, x, params) {
 }
 ```
 
-I like to use a list of standard model parameters (including standard initial values), which I give a dot name which matches the model function. So, `.growth` is a named list (support, for example, easy access with `with()` calls) which includes an initial value ("xinit") and the two model parameters $r$ and $K$. The function `growth()` is written in deSolve's preferred format and returns a derivative. `growth()` returns the derivative as the first element in a list because of functionality in *deSolve*, but I won't use that functionality here.
+I like to use a list of standard model parameters (including standard initial values), which I give a dot name which matches the model function. So, `.growth` is a named list (supporting, for example, easy access with `with()` calls) which includes an initial value ("xinit") and the two model parameters $r$ and $K$. The function `growth()` is written in deSolve's preferred format and returns a derivative. (As a side note, `growth()` returns the derivative as the first element in a list because of functionality in *deSolve*, but I won't use that functionality here).
 
 We can simulate this model at specific time steps, and plot the result:
 
@@ -140,7 +140,7 @@ If we want to simulate dynamics on networks, we often have a model that looks so
 
 $\frac{dx}{dt} = -(x - r_1)(x - r_2)(x - r_3) + D\sum_{j=1}^N a_{i,j}x_j$
 
-The first part of the model is some nonlinear dynamics (here, a cubic function of $x$) and a coupling function. Here, $D$ can be thought of a coupling strength, so the coupling function simply sums the states of all of node $i$'s neighbors, scaled by $D$. To implement this in *localsolver* as an SDE, we might do something like this:
+The first part of the model is some nonlinear dynamics (here, a cubic function of $x$) and the second is a coupling function. Here, $D$ can be thought of a coupling strength, so the coupling function simply sums the states of all of node $i$'s neighbors, scaled by $D$. To implement this in *localsolver* as an SDE, we might do something like this:
 
 ```{r}
 .doublewell <- list(
