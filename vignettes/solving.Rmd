@@ -10,7 +10,7 @@ lout <- 100
 
 # Motivation
 
-The *deSolve* package is fantastic for simulating deterministic ordinary differential equations (ODEs): it's fast, has great documentation, easy to use (compared to other solvers I have tried), and has convenient output data. A recommended stochastic differential equation package, *sde*, didn't fit easily into my workflow. Additionally, I often need to evaluate a chosen model as either an ODE or an SDE across a range of parameter values. The *localsolver* package is a simple package that implements the Euler-Maruyama method for solving (Itô calculus) SDEs and provides a function which solves the same ODE or SDE with the same model parameters across a range of a control parameter.
+The *deSolve* package is fantastic for simulating deterministic ordinary differential equations (ODEs): it's fast, has great documentation, easy to use (compared to other solvers I have tried), and has convenient output data. I learned a lot from the stochastic differential equation package, *sde*, but I wanted output that was in *deSolve*'s format: I often need to evaluate a chosen model as either an ODE or an SDE across a range of parameter values. The *localsolver* package is a simple package that implements the Euler-Maruyama method for solving (Itô calculus) SDEs and provides a function which solves the same ODE or SDE with the same model parameters across a range of a control parameter. It also provides some simple plotting functions that you can use as diagnostic tools. 
 
 # Solving a simple ODE
 
