@@ -55,7 +55,7 @@ doublewell <- function(t, x, params) {
 #' @rdname ODEs
 #' @export
 .SIS <- list( # Only the up direction makes sense for this model (epidemic threshold)
-    xinit.low = 0.01,
+    xinit.low = 0.01, xinit.high = 0.99,
     mu = 1,
     D = 0.05, Ds = seq(0, 1, length.out = 100),
     u = 0,
@@ -80,7 +80,7 @@ SIS <- function(t, x, params) {
     xinit.high = 2,
     B = 1, f = 1, h = 2,
     D = 1, Ds = seq(0, 1, length.out = 100),
-    u = 0, us.down = seq(0, -0.5, length.out = 100),
+    u = 0, us.down = seq(0, -1, length.out = 100),
     sigma = 1e-5,
     upper.basin.limit = 0.1 # marks cell death, name matches direction terminology for doublewell
 )
