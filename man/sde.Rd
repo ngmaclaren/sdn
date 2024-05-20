@@ -27,6 +27,7 @@ Simulate stochastic differential equations using the Euler-Maruyama method. Outp
 Returns a data frame that looks like deSolve's ode() output: a column of time steps, then a column of values at each timestep for each variable in the model.
 }
 \examples{
+library(graphics)
 library(stats)
 library(deSolve)
 library(localsolver)
@@ -82,4 +83,22 @@ abline(v = 0, lwd = 0.5)
 lines(res[, 2], res[, 3])
 points(res[1, 2], res[1, 3], col = 3, pch = 16, cex = 2) # starting point
 points(res[nrow(res), 2], res[nrow(res), 3], col = 2, pch = 16, cex = 2) # stopping point
+
+## Coupled SDEs on a network with an absorbing state.
+
+library(igraph)
+
+g <- make_full_graph(4)
+A <- as_adj(g, "both", sparse = FALSE)
+N <- vcount(g)
+model <- SIS
+params <- c(.SIS, list(A = A))
+control <- list(
+  deltaT = 0.01, times = 0:50,
+  absorbing.state = list(value = 0, which = "floor")
+)
+X <- sde(rep(0.01, N), control$times, model, params, control)
+time_ev(X, ylim = c(-0.001, 0.001))
+abline(h = 0, col = 2)
+min(X) # 0
 }

@@ -22,6 +22,7 @@ Given the output of localsolver::solve_in_range(), plot the bifurcation diagram 
 This is meant as a quick diagnostic plot.
 }
 \examples{
+library(graphics)
 library(deSolve)
 library(localsolver)
 rs <- .saddlenode$rs

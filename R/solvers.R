@@ -1,4 +1,5 @@
-#' @import stats parallel deSolve
+#' @import graphics stats parallel deSolve
+library(graphics)
 library(stats)
 library(parallel)
 library(deSolve)
@@ -20,6 +21,7 @@ library(deSolve)
 #'
 #' @return An L x N matrix of final values, where L is the length of `rng` and N is the length of `initialvalue`.
 #' @examples
+#' library(graphics)
 #' library(stats)
 #' library(deSolve)
 #' library(localsolver)
@@ -155,6 +157,7 @@ preallocate_noise <- function(sigma, ntimesteps, nnodes) {
 #' @return A data frame
 #' @details Returns a data frame that looks like deSolve's ode() output: a column of time steps, then a column of values at each timestep for each variable in the model.
 #' @examples
+#' library(graphics)
 #' library(stats)
 #' library(deSolve)
 #' library(localsolver)
@@ -210,6 +213,24 @@ preallocate_noise <- function(sigma, ntimesteps, nnodes) {
 #' lines(res[, 2], res[, 3])
 #' points(res[1, 2], res[1, 3], col = 3, pch = 16, cex = 2) # starting point
 #' points(res[nrow(res), 2], res[nrow(res), 3], col = 2, pch = 16, cex = 2) # stopping point
+#'
+#' ## Coupled SDEs on a network with an absorbing state.
+#' 
+#' library(igraph)
+#'
+#' g <- make_full_graph(4)
+#' A <- as_adj(g, "both", sparse = FALSE)
+#' N <- vcount(g)
+#' model <- SIS
+#' params <- c(.SIS, list(A = A))
+#' control <- list(
+#'   deltaT = 0.01, times = 0:50,
+#'   absorbing.state = list(value = 0, which = "floor")
+#' )
+#' X <- sde(rep(0.01, N), control$times, model, params, control)
+#' time_ev(X, ylim = c(-0.001, 0.001))
+#' abline(h = 0, col = 2)
+#' min(X) # 0
 #' @export
 sde <- function(initialvalue, times, func, parms = list(), control = list()) { # `parms` b/c deSolve
                                         # must have a noise strength
@@ -243,6 +264,12 @@ sde <- function(initialvalue, times, func, parms = list(), control = list()) { #
             func(timestep, x, parms)[[1]]*control$deltaT + # from deSolve docs, derivative is [[1]]
                                         # scaling for Δt for the noise process
             W[timestep, ]*sqrt(control$deltaT)
+
+        if("absorbing.state" %in% names(control)) {
+            x <- enforce_absorbing_state(
+                x,
+                val = control$absorbing.state$value, which = control$absorbing.state$which)
+        }
     }
 
     ##df <- as.data.frame(cbind(showtimes, X))
@@ -251,4 +278,67 @@ sde <- function(initialvalue, times, func, parms = list(), control = list()) { #
     colnames(res) <- c("time", varnames)
     ## return(df)
     return(res)
+}
+
+#' Handle an absorbing state in an SDE model
+#'
+#' Require that the output of sde() respect a value which should, in an ODE, be an absorbing state. Without this enforcement, the x_i may become larger or smaller than the absorbing state due to dynamical noise. Intended to be called from within sde() by using a named list within the control list. 
+#' @param x The x_i returned by the deterministic part of the model plus the stochastic part
+#' @param val The numeric value of the absorbing state (e.g., 0)
+#' @param which Either "floor" or "ceiling
+#' @returns A numeric vector, the x_i
+#' @details Some models have absorbing states below or above which values should not stray. In deterministic simulations, the x_i stay where they should. In stochastic simulations, dynamical noise may result in x_i outside of the prescribed boundaries. This function enforces the absorbing state. The solution used is to reset the offending values by brute force. For example, if which = "floor", this is done: ifelse(x < val, val, x).
+#'
+#' It is not intended that this function is used on its own, but rather inside sde(). This is accomplished by means of a list with a particular name, "absorbing.state", and two named values, "value" and "which", e.g. control <- list(..., absorbing.state = list(value = 0, which = "floor")). See the examples.
+#' @examples
+#' library(graphics)
+#' library(igraph)
+#' library(localsolver)
+#'
+#' g <- make_full_graph(4)
+#' A <- as_adj(g, "both", sparse = FALSE)
+#' N <- vcount(g)
+#' model <- SIS
+#' params <- c(.SIS, list(A = A))
+#' control <- list(
+#'   deltaT = 0.01, times = 0:50,
+#'   absorbing.state = list(value = 0, which = "floor")
+#' )
+#' X <- sde(rep(0.01, N), control$times, model, params, control)
+#' time_ev(X, ylim = c(-0.001, 0.001))
+#' abline(h = 0, col = 2)
+#' min(X) # 0
+#' 
+#' X.wrong <- sde(rep(0.01, N), control$times, model, params, list(deltaT = 0.01))
+#' min(X.wrong) # a small negative value
+#'
+#' dev.new(width = 14)
+#' par(mfrow = c(1, 2))
+#' time_ev(X, main = "Right", ylim = c(-1e-4, 1e-4))
+#' abline(h = 0, col = 2)
+#' time_ev(X.wrong, main = "Wrong", ylim = c(-1e-4, 1e-4))
+#' abline(h = 0, col = 2)
+#'
+#' model <- mutualistic
+#' params <- c(.mutualistic, list(A = A))
+#' params$D <- 0.05
+#' params$u <- -5
+#' control$times <- 0:10
+#' X <- sde(rep(10, N), control$times, model, params, control)
+#' time_ev(X, ylim = c(-0.001, 0.001))
+#'
+#' model <- genereg
+#' params <- c(.genereg, list(A = A))
+#' params$D <- 0.25
+#' control$times <- 0:50
+#' X <- sde(rep(10, N), control$times, model, params, control)
+#' time_ev(X, ylim = c(-1e-4, 1e-4))
+enforce_absorbing_state <- function(x, val, which = c("floor", "ceiling")) {
+    which <- match.arg(which)
+
+    switch(
+        which,
+        floor = ifelse(x < val, val, x),
+        ceiling = ifelse(x > val, val, x)
+    )
 }

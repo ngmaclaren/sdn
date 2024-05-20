@@ -70,6 +70,7 @@ transcritical <- function(t, x, params) {
 #' @param r The control parameter.
 #' @references https://en.wikipedia.org/wiki/Pitchfork_bifurcation
 #' @examples
+#' library(graphics)
 #' library(deSolve)
 #' library(localsolver)
 #' rs <- .pitchfork$rs
@@ -112,7 +113,7 @@ pitchfork <- function(t, x, params) {
 #' @description The normal form of the Hopf bifurcation in Euclidean coordinates and without complex numbers.
 #' @param r One of two possible control parameters, a.k.a. mu
 #' @param w One of two possible control parameters, a.k.a. omega
-#' @details Hopf bifurcations are necessarily bivariate, requiring both an x and a y coordinate for a single node or isolated system. The implementation here follows from that used in deSolve: the 'x' variable is a vector with the x and y values concatenated. The Hopf() function itself splits the x and y values, computes the derivative, the concatenates and returns.
+#' @details Hopf bifurcations are necessarily bivariate, requiring both an x and a y coordinate for a single node or isolated system. The implementation here follows from that used in deSolve: the 'x' variable is a vector with the x and y values concatenated. The Hopf() function itself splits the x and y values, computes the derivative, then concatenates and returns.
 #' @references https://en.wikipedia.org/wiki/Hopf_bifurcation
 #' @examples
 #' library(deSolve)

@@ -5,6 +5,7 @@
 #' @param ... Passed to matplot() and, if showmean = TRUE, lines()
 #' @details This is meant as a quick diagnostic plots. At least one consequence of this is that `col` is hard-coded inside the function...
 #' @examples
+#' library(graphics)
 #' library(deSolve)
 #' library(localsolver)
 #'
@@ -39,6 +40,7 @@ time_ev <- function(X, showmean = FALSE, ...) {
 #' @param ... Passed to matplot(); col = 2 is used for the mean state if showmean = TRUE
 #' @details This is meant as a quick diagnostic plot.
 #' @examples
+#' library(graphics)
 #' library(deSolve)
 #' library(localsolver)
 #' rs <- .saddlenode$rs

@@ -22,7 +22,7 @@ Hopf(t, x, params)
 The normal form of the Hopf bifurcation in Euclidean coordinates and without complex numbers.
 }
 \details{
-Hopf bifurcations are necessarily bivariate, requiring both an x and a y coordinate for a single node or isolated system. The implementation here follows from that used in deSolve: the 'x' variable is a vector with the x and y values concatenated. The Hopf() function itself splits the x and y values, computes the derivative, the concatenates and returns.
+Hopf bifurcations are necessarily bivariate, requiring both an x and a y coordinate for a single node or isolated system. The implementation here follows from that used in deSolve: the 'x' variable is a vector with the x and y values concatenated. The Hopf() function itself splits the x and y values, computes the derivative, then concatenates and returns.
 }
 \examples{
 library(deSolve)

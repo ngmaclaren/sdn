@@ -20,6 +20,7 @@ pitchfork(t, x, params)
 The normal form of the pitchfork bifurcation. This function is the supercritical type.
 }
 \examples{
+library(graphics)
 library(deSolve)
 library(localsolver)
 rs <- .pitchfork$rs

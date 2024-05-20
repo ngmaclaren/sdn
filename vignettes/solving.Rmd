@@ -1,3 +1,5 @@
+%\VignetteEngine{knitr::rmarkdown}
+
 ---
 title: A simple solving package
 author: Neil MacLaren

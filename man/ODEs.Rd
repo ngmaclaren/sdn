@@ -15,7 +15,7 @@
 \format{
 An object of class \code{list} of length 11.
 
-An object of class \code{list} of length 7.
+An object of class \code{list} of length 8.
 
 An object of class \code{list} of length 10.
 
@@ -60,13 +60,13 @@ library(parallel)
 ncores <- detectCores()-1
 library(igraph)
 library(deSolve)
-g <- readRDS("../data/dolphin.rds")
+g <- sample_pa(50, m = 2, directed = FALSE, start.graph = make_full_graph(3))
 N <- vcount(g)
 A <- as_adj(g, "both", sparse = FALSE)
-k <- degree(g)
 times <- 0:15
 params <- c(.doublewell, list(A = A))
 control <- list(times = times, ncores = ncores)
 X <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "ode")
+bifplot(X, params$Ds, TRUE, col = adjustcolor(1, 0.25))
 }
 \keyword{datasets}

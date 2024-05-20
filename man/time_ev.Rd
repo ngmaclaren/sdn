@@ -20,6 +20,7 @@ Given the output of deSolve::ode() or localsolver::sde(), plot the time evolutio
 This is meant as a quick diagnostic plots. At least one consequence of this is that `col` is hard-coded inside the function...
 }
 \examples{
+library(graphics)
 library(deSolve)
 library(localsolver)
 

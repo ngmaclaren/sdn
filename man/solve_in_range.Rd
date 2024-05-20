@@ -42,6 +42,7 @@ Simulate a system of ODEs across a range of a control parameter.
 Solves an ODE or SDE across a range of parameter values. If `kind = "ode"`, requires deSolve.
 }
 \examples{
+library(graphics)
 library(stats)
 library(deSolve)
 library(localsolver)

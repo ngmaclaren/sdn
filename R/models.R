@@ -13,14 +13,14 @@
 #' ncores <- detectCores()-1
 #' library(igraph)
 #' library(deSolve)
-#' g <- readRDS("../data/dolphin.rds")
+#' g <- sample_pa(50, m = 2, directed = FALSE, start.graph = make_full_graph(3))
 #' N <- vcount(g)
 #' A <- as_adj(g, "both", sparse = FALSE)
-#' k <- degree(g)
 #' times <- 0:15
 #' params <- c(.doublewell, list(A = A))
 #' control <- list(times = times, ncores = ncores)
 #' X <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "ode")
+#' bifplot(X, params$Ds, TRUE, col = adjustcolor(1, 0.25))
 NULL
 
 #' @rdname ODEs
@@ -67,9 +67,8 @@ doublewell <- function(t, x, params) {
 #' @export
 SIS <- function(t, x, params) {
     with(params, {
-        x[x < 0] <- 0 # zero is a floor here, and dx should only make it grow
         coupling <- D*rowSums(A*outer(1 - x, x))
-        dx <- coupling - mu*x# + u # u is not physical for this model
+        dx <- coupling - mu*x
         return(list(c(dx)))
     })
 }
@@ -88,12 +87,9 @@ SIS <- function(t, x, params) {
 #' @rdname ODEs
 #' @export
 genereg <- function(t, x, params) {
-                                        # Currently allows for x < 0 if the bifurcation parameter is u
-                                        # Set x = 0 if x < 0?
     with(params, {
-        x[x < 0] <- 0
         coupling <- D*rowSums(A*outer(rep(1, length(x)), (x^h)/(1 + (x^h))))
-        dx <- ifelse(
+        dx <- ifelse( # handles situation where control parameter is u. If sde, use absorbing.state list in control
             x > 0,
             -B*(x^f) + coupling + u,
             0
@@ -117,7 +113,6 @@ genereg <- function(t, x, params) {
 #' @export
 mutualistic <- function(t, x, params) {
     with(params, {
-        x[x < 0] <- 0
         coupling <- D*rowSums(A*(outer(x, x)/(Dtilde + outer(E*x, H*x, `+`))))
         dx <- ifelse(
             x > 0,
