@@ -24,7 +24,7 @@ library(deSolve)
 #' library(graphics)
 #' library(stats)
 #' library(deSolve)
-#' library(localsolver)
+#' library(sdn)
 #' 
 #' ## Generate an adjacency matrix
 #' library(igraph)
@@ -160,7 +160,7 @@ preallocate_noise <- function(sigma, ntimesteps, nnodes) {
 #' library(graphics)
 #' library(stats)
 #' library(deSolve)
-#' library(localsolver)
+#' library(sdn)
 #' 
 #' .growth <- list(xinit = 0.1, r = 1, K = 5, sigma = 0.1) # Set some parameters
 #' growth <- function(t, x, params) { # A function returning a derivative
@@ -293,7 +293,7 @@ sde <- function(initialvalue, times, func, parms = list(), control = list()) { #
 #' @examples
 #' library(graphics)
 #' library(igraph)
-#' library(localsolver)
+#' library(sdn)
 #'
 #' g <- make_full_graph(4)
 #' A <- as_adj(g, "both", sparse = FALSE)

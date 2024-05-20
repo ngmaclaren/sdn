@@ -30,7 +30,7 @@ Returns a data frame that looks like deSolve's ode() output: a column of time st
 library(graphics)
 library(stats)
 library(deSolve)
-library(localsolver)
+library(sdn)
 
 .growth <- list(xinit = 0.1, r = 1, K = 5, sigma = 0.1) # Set some parameters
 growth <- function(t, x, params) { # A function returning a derivative

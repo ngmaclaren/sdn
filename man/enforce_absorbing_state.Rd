@@ -27,7 +27,7 @@ It is not intended that this function is used on its own, but rather inside sde(
 \examples{
 library(graphics)
 library(igraph)
-library(localsolver)
+library(sdn)
 
 g <- make_full_graph(4)
 A <- as_adj(g, "both", sparse = FALSE)

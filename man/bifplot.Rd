@@ -16,7 +16,7 @@ bifplot(X, cparam, showmean = FALSE, ...)
 \item{...}{Passed to matplot(); col = 2 is used for the mean state if showmean = TRUE}
 }
 \description{
-Given the output of localsolver::solve_in_range(), plot the bifurcation diagram of the system as a function of a control parameter.
+Given the output of sdn::solve_in_range(), plot the bifurcation diagram of the system as a function of a control parameter.
 }
 \details{
 This is meant as a quick diagnostic plot.
@@ -24,7 +24,7 @@ This is meant as a quick diagnostic plot.
 \examples{
 library(graphics)
 library(deSolve)
-library(localsolver)
+library(sdn)
 rs <- .saddlenode$rs
 x <- solve_in_range(rs, "r", saddlenode, .saddlenode$xinit, .saddlenode)
 bifplot(x, rs)

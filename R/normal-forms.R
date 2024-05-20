@@ -6,7 +6,7 @@
 #' @references https://en.wikipedia.org/wiki/Saddle-node_bifurcation
 #' @examples
 #' library(deSolve)
-#' library(localsolver)
+#' library(sdn)
 #' rs <- .saddlenode$rs
 #' x <- solve_in_range(rs, "r", saddlenode, .saddlenode$xinit, .saddlenode)
 #' xlim <- range(rs) + c(-0.1, 0.1)
@@ -40,7 +40,7 @@ saddlenode <- function(t, x, params) {
 #' @references https://en.wikipedia.org/wiki/Transcritical_bifurcation
 #' @examples
 #' library(deSolve)
-#' library(localsolver)
+#' library(sdn)
 #' rs <- .transcritical$rs
 #' x <- solve_in_range(rs, "r", transcritical, .transcritical$xinit, .transcritical)
 #' plot(rs, x, type = "l", xlab = "r", ylab = "x", col = 2, lwd = 2, xaxs = "i")
@@ -72,7 +72,7 @@ transcritical <- function(t, x, params) {
 #' @examples
 #' library(graphics)
 #' library(deSolve)
-#' library(localsolver)
+#' library(sdn)
 #' rs <- .pitchfork$rs
 #' x_upper <- solve_in_range(rs, "r", pitchfork, .pitchfork$xinit, .pitchfork)
 #' x_lower <- solve_in_range(rs, "r", pitchfork, -.pitchfork$xinit, .pitchfork)
@@ -117,7 +117,7 @@ pitchfork <- function(t, x, params) {
 #' @references https://en.wikipedia.org/wiki/Hopf_bifurcation
 #' @examples
 #' library(deSolve)
-#' library(localsolver)
+#' library(sdn)
 #' rs <- c(-1, -0.1, -0.01, -0.001, 0.001, 0.01, 0.1, 1)
 #' control <- list(times = seq(0, 100, by = 0.1))
 #' result <- lapply(rs, function(r) {

@@ -21,7 +21,7 @@ The normal form of the transcritical bifurcation
 }
 \examples{
 library(deSolve)
-library(localsolver)
+library(sdn)
 rs <- .transcritical$rs
 x <- solve_in_range(rs, "r", transcritical, .transcritical$xinit, .transcritical)
 plot(rs, x, type = "l", xlab = "r", ylab = "x", col = 2, lwd = 2, xaxs = "i")

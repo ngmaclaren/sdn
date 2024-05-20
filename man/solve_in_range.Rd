@@ -45,7 +45,7 @@ Solves an ODE or SDE across a range of parameter values. If `kind = "ode"`, requ
 library(graphics)
 library(stats)
 library(deSolve)
-library(localsolver)
+library(sdn)
 
 ## Generate an adjacency matrix
 library(igraph)

@@ -21,7 +21,7 @@ The normal form of the saddle-node bifurcation.
 }
 \examples{
 library(deSolve)
-library(localsolver)
+library(sdn)
 rs <- .saddlenode$rs
 x <- solve_in_range(rs, "r", saddlenode, .saddlenode$xinit, .saddlenode)
 xlim <- range(rs) + c(-0.1, 0.1)

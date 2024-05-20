@@ -14,7 +14,7 @@ time_ev(X, showmean = FALSE, ...)
 \item{...}{Passed to matplot() and, if showmean = TRUE, lines()}
 }
 \description{
-Given the output of deSolve::ode() or localsolver::sde(), plot the time evolution of the system.
+Given the output of deSolve::ode() or sdn::sde(), plot the time evolution of the system.
 }
 \details{
 This is meant as a quick diagnostic plots. At least one consequence of this is that `col` is hard-coded inside the function...
@@ -22,7 +22,7 @@ This is meant as a quick diagnostic plots. At least one consequence of this is t
 \examples{
 library(graphics)
 library(deSolve)
-library(localsolver)
+library(sdn)
 
 control <- list(times = seq(0, 20, by = 0.1))
 x <- ode(.saddlenode$xinit, control$times, saddlenode, list(r = 0))

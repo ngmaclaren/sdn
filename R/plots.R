@@ -1,5 +1,5 @@
 #' Plot the time evolution of a system
-#' @description Given the output of deSolve::ode() or localsolver::sde(), plot the time evolution of the system.
+#' @description Given the output of deSolve::ode() or sdn::sde(), plot the time evolution of the system.
 #' @param X The output of ode() or sde()
 #' @param showmean Should the mean state of potentially many variables in X be drawn?
 #' @param ... Passed to matplot() and, if showmean = TRUE, lines()
@@ -7,7 +7,7 @@
 #' @examples
 #' library(graphics)
 #' library(deSolve)
-#' library(localsolver)
+#' library(sdn)
 #'
 #' control <- list(times = seq(0, 20, by = 0.1))
 #' x <- ode(.saddlenode$xinit, control$times, saddlenode, list(r = 0))
@@ -33,7 +33,7 @@ time_ev <- function(X, showmean = FALSE, ...) {
 }
 
 #' Plot the bifurcation diagram
-#' @description Given the output of localsolver::solve_in_range(), plot the bifurcation diagram of the system as a function of a control parameter.
+#' @description Given the output of sdn::solve_in_range(), plot the bifurcation diagram of the system as a function of a control parameter.
 #' @param X The output of solve_in_range(), a matrix
 #' @param cparam The control parameter. It should be a sequence.
 #' @param showmean Should the mean state of potentially many variables in X be drawn?
@@ -42,7 +42,7 @@ time_ev <- function(X, showmean = FALSE, ...) {
 #' @examples
 #' library(graphics)
 #' library(deSolve)
-#' library(localsolver)
+#' library(sdn)
 #' rs <- .saddlenode$rs
 #' x <- solve_in_range(rs, "r", saddlenode, .saddlenode$xinit, .saddlenode)
 #' bifplot(x, rs)

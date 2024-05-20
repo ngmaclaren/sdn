@@ -12,7 +12,7 @@ lout <- 100
 
 # Motivation
 
-The *deSolve* package is fantastic for simulating deterministic ordinary differential equations (ODEs): it's fast, has great documentation, easy to use (compared to other solvers I have tried), and has convenient output data. I learned a lot from the stochastic differential equation package, *sde*, but I wanted output that was in *deSolve*'s format: I often need to evaluate a chosen model as either an ODE or an SDE across a range of parameter values. The *localsolver* package is a simple package that implements the Euler-Maruyama method for solving (Itô calculus) SDEs and provides a function which solves the same ODE or SDE with the same model parameters across a range of a control parameter. It also provides some simple plotting functions that you can use as diagnostic tools. 
+The *deSolve* package is fantastic for simulating deterministic ordinary differential equations (ODEs): it's fast, has great documentation, easy to use (compared to other solvers I have tried), and has convenient output data. I learned a lot from the stochastic differential equation package, *sde*, but I wanted output that was in *deSolve*'s format: I often need to evaluate a chosen model as either an ODE or an SDE across a range of parameter values. The *sdn* package is a simple package that implements the Euler-Maruyama method for solving (Itô calculus) SDEs and provides a function which solves the same ODE or SDE with the same model parameters across a range of a control parameter. It also provides some simple plotting functions that you can use as diagnostic tools. 
 
 # Solving a simple ODE
 
@@ -51,14 +51,14 @@ The output from `ode()` is a matrix, the first column of which is the time varia
 
 # An SDE version
 
-It should be easy for the user to say, "Ok, now show me that with noise!" Unfortunately, it's not that easy. Enter the *localsolver* package. *localsolver* provides a function, `sde()`, which attemps to make the transition from ODE to SDE as seamless as possible. We are now interested in the following model:
+It should be easy for the user to say, "Ok, now show me that with noise!" Unfortunately, it's not that easy. Enter the *sdn* package. *sdn* provides a function, `sde()`, which attemps to make the transition from ODE to SDE as seamless as possible. We are now interested in the following model:
 
 $dx = (rx(1 - \frac{x}{K}))dt + d\sigma W$
 
 I hope I have written that correctly. In any case, our observable $x$ is a sum of a deterministic process (i.e., $rx(1 - \frac{x}{K})$ and a noise process $W$ with strength (standard deviation) $\sigma$. We can no longer rely on *deSolve*'s machinery to compute our answer for us, so `sde()` uses the brute force method to simulate each time step based on the initial conditions and each time step before the current one. Thus, `sde()` requires that you also specify the first and last time step, the $\Delta t$, and the noise strength $\sigma$. Our simulation code now looks like this:
 
 ```{r eval = TRUE}
-library(localsolver)
+library(sdn)
 
 .growth$sigma <- 0.1
 control <- list(times = 0:10, deltaT = 0.01)
@@ -134,7 +134,7 @@ points(res[nrow(res), 2], res[nrow(res), 3], col = 2, pch = 16, cex = 2) # stopp
 
 # The guts
 
-My `sde()` function is a brute force simulator, using the derivative function (the deterministic part) to simulate each next state from the previous state. A trick, suggested by the *sde* package, is to generate all the random numbers ahead of time. This improves the computation speed. Thus, *localsolver* includes some helper functions (`determine_ntimesteps()`, `preallocate_noise()`) which are called by `sde()` and enable the user to remain in the model space and user time units, not worrying so much about the implementation. Solving SDEs with *localsolver* will be slower than solving ODEs with *deSolve*, but hopefully it won't be more confusing. 
+My `sde()` function is a brute force simulator, using the derivative function (the deterministic part) to simulate each next state from the previous state. A trick, suggested by the *sde* package, is to generate all the random numbers ahead of time. This improves the computation speed. Thus, *sdn* includes some helper functions (`determine_ntimesteps()`, `preallocate_noise()`) which are called by `sde()` and enable the user to remain in the model space and user time units, not worrying so much about the implementation. Solving SDEs with *sdn* will be slower than solving ODEs with *deSolve*, but hopefully it won't be more confusing. 
 
 # Dynamics on networks
 
@@ -142,7 +142,7 @@ If we want to simulate dynamics on networks, we often have a model that looks so
 
 $\frac{dx}{dt} = -(x - r_1)(x - r_2)(x - r_3) + D\sum_{j=1}^N a_{i,j}x_j$
 
-The first part of the model is some nonlinear dynamics (here, a cubic function of $x$) and the second is a coupling function. Here, $D$ can be thought of a coupling strength, so the coupling function simply sums the states of all of node $i$'s neighbors, scaled by $D$. To implement this in *localsolver* as an SDE, we might do something like this:
+The first part of the model is some nonlinear dynamics (here, a cubic function of $x$) and the second is a coupling function. Here, $D$ can be thought of a coupling strength, so the coupling function simply sums the states of all of node $i$'s neighbors, scaled by $D$. To implement this in *sdn* as an SDE, we might do something like this:
 
 ```{r}
 .doublewell <- list(
@@ -163,7 +163,7 @@ doublewell <- function(t, x, params) {
 }
 ```
 
-Both `.doublewell` and `doublewell()` are included in *localsolver*; `.doublewell` has more information than we need at present. We can simulate the states of the variables in a network for a given level of $D$ as follows:
+Both `.doublewell` and `doublewell()` are included in *sdn*; `.doublewell` has more information than we need at present. We can simulate the states of the variables in a network for a given level of $D$ as follows:
 
 ```{r eval = TRUE}
 library(igraph)
@@ -179,7 +179,7 @@ x.sde <- sde(rep(.doublewell$xinit.low, N), control$times, doublewell, params, c
 
 # Simulating across a control parameter range
 
-When we need to consider the equilibrium state of a system across a range of parameter values, we need to simulate the system many times in almost the same way every time, changing only the one parameter. *localsolver* provides `solve_in_range()` for this purpose. 
+When we need to consider the equilibrium state of a system across a range of parameter values, we need to simulate the system many times in almost the same way every time, changing only the one parameter. *sdn* provides `solve_in_range()` for this purpose. 
 
 ```{r eval = TRUE}
 library(parallel) # required for solve_in_range, may not work on Windows

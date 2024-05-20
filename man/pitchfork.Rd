@@ -22,7 +22,7 @@ The normal form of the pitchfork bifurcation. This function is the supercritical
 \examples{
 library(graphics)
 library(deSolve)
-library(localsolver)
+library(sdn)
 rs <- .pitchfork$rs
 x_upper <- solve_in_range(rs, "r", pitchfork, .pitchfork$xinit, .pitchfork)
 x_lower <- solve_in_range(rs, "r", pitchfork, -.pitchfork$xinit, .pitchfork)
