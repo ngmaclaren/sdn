@@ -8,6 +8,7 @@ Imports: graphics, stats, parallel, deSolve
 Suggests: igraph, knitr, rmarkdown
 Description: Simulate dynamics on networks using ordinary or stochastic differential equations. Relies on deSolve for ODEs. For SDEs, uses a simple Euler-Maruyama implementation to produce an object like the output from deSolve::ode().
 VignetteBuilder: knitr
+BuildVignettes: no
 License: GPL-3
 Encoding: UTF-8
 RoxygenNote: 7.3.1

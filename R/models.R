@@ -59,8 +59,8 @@ doublewell <- function(t, x, params) {
     mu = 1,
     D = 0.05, Ds = seq(0, 1, length.out = 100),
     u = 0,
-    sigma = 1e-5,
-    lower.basin.limit = 0.1 # epidemic threshold, name matches direction terminology for doublewell
+    sigma = 1e-3,#1e-5,
+    lower.basin.limit = 5e-3#0.1 # epidemic threshold, name matches direction terminology for doublewell
 )
 
 #' @rdname ODEs
@@ -80,8 +80,8 @@ SIS <- function(t, x, params) {
     B = 1, f = 1, h = 2,
     D = 1, Ds = seq(0, 1, length.out = 100),
     u = 0, us.down = seq(0, -1, length.out = 100),
-    sigma = 1e-5,
-    upper.basin.limit = 0.1 # marks cell death, name matches direction terminology for doublewell
+    sigma = 1e-3,#1e-5,
+    upper.basin.limit = 5e-3#0.1 # marks cell death, name matches direction terminology for doublewell
 )
 
 #' @rdname ODEs
