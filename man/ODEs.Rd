@@ -13,13 +13,13 @@
 \alias{mutualistic}
 \title{Functions to standardize simulations of ODE/SDEs}
 \format{
-An object of class \code{list} of length 11.
+An object of class \code{list} of length 10.
 
 An object of class \code{list} of length 8.
 
 An object of class \code{list} of length 10.
 
-An object of class \code{list} of length 16.
+An object of class \code{list} of length 15.
 }
 \usage{
 .doublewell

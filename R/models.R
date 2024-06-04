@@ -31,7 +31,7 @@ NULL
     D = 0.05, Ds = seq(0, 1, length.out = 100),
     u = 0, us.up = seq(0, 5, length.out = 100), us.down = seq(0, -5, length.out = 100),
     sigma = 1e-2,
-    lower.basin.limit = 2, upper.basin.limit = 4
+    basin.limit = 3 # should be the same from either direction; separatrix (= r_2)
 )
 
 #' @rdname ODEs
@@ -60,7 +60,7 @@ doublewell <- function(t, x, params) {
     D = 0.05, Ds = seq(0, 1, length.out = 100),
     u = 0,
     sigma = 1e-3,#1e-5,
-    lower.basin.limit = 5e-3#0.1 # epidemic threshold, name matches direction terminology for doublewell
+    basin.limit = 5e-3 # epidemic threshold, 5*sigma, clearly distinguishable from zero
 )
 
 #' @rdname ODEs
@@ -81,7 +81,7 @@ SIS <- function(t, x, params) {
     D = 1, Ds = seq(0, 1, length.out = 100),
     u = 0, us.down = seq(0, -1, length.out = 100),
     sigma = 1e-3,#1e-5,
-    upper.basin.limit = 5e-3#0.1 # marks cell death, name matches direction terminology for doublewell
+    basin.limit = 5e-3 # cell death
 )
 
 #' @rdname ODEs
@@ -101,12 +101,12 @@ genereg <- function(t, x, params) {
 #' @rdname ODEs
 #' @export
 .mutualistic <- list( # Up direction could be invasion, down collapse
-    xinit.low = 0.001, xinit.high = 10,
+    xinit.low = 0.001, xinit.high = 6, # to match Gao et al 2016
     B = 0.1, K = 5, C = 1, Dtilde = 5, E = 0.9, H = 0.1,
     D = 0.05, Ds = seq(0, 3, length.out = 100),
     u = 0, us.up = seq(0, 0.5, length.out = 100), us.down = seq(0, -5, length.out = 100),
     sigma = 1e-3,
-    lower.basin.limit = 1, upper.basin.limit = 4
+    basin.limit = 1 # Allee constant (= C)
 )
 
 #' @rdname ODEs
