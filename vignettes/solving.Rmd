@@ -1,198 +1,65 @@
-%\VignetteEngine{knitr::rmarkdown}
-
 ---
-title: A simple solving package
+title: Simulating Dynamics on Networks
 author: Neil MacLaren
+date: "`r format(Sys.Date(), '%b %d, %Y')`"
+output:
+  pdf_document:
+    latex_engine: pdflatex
 ---
 
 ```{r echo = FALSE, eval = TRUE}
 .libPaths("/home/neil/R/library")
-lout <- 100
+## lout <- 100
 ```
 
-# Motivation
+*sdn* is a package for simulating dynamics on networks. The package grew out of a need to do the same tasks with both deterministic and stochastic simulations of the same model, but has expanded as I have come to rely on it more. The current goal is to support numerical investigation of $N$ dynamical equations coupled via a complex network. As such, it supports ordinary and stochastic differential equations, different coupling functions, and phase space investigation.
 
-The *deSolve* package is fantastic for simulating deterministic ordinary differential equations (ODEs): it's fast, has great documentation, easy to use (compared to other solvers I have tried), and has convenient output data. I learned a lot from the stochastic differential equation package, *sde*, but I wanted output that was in *deSolve*'s format: I often need to evaluate a chosen model as either an ODE or an SDE across a range of parameter values. The *sdn* package is a simple package that implements the Euler-Maruyama method for solving (Itô calculus) SDEs and provides a function which solves the same ODE or SDE with the same model parameters across a range of a control parameter. It also provides some simple plotting functions that you can use as diagnostic tools. 
+In this document I intend to discuss a variety of topics related to dynamics on networks and how I address them using this package and the more fundamental packages upon which I most rely: *deSolve* and *igraph*. 
 
-# Solving a simple ODE
+# Fundamentals
 
-A model of logistic growth is 
+One way to look at dynamics on networks is to imagine that there is some dynamical (i.e., changing in time) process occuring on the nodes of a network, and that each dynamical process influences each other dynamical process in some way through the network edges. We can write this idea generically as
+\begin{equation}
+  \frac{dx_i}{dt} = F(x_i) + G(x_i, x_j),
+\end{equation}
+where $F(x_i)$ is the dynamics happening on each node and $G(x_i, x_j)$ is a coupling function. The function $F(x_i)$ defines what the node does in isolation, whereas the function $G(x_i, x_j)$ defines how two nodes influence each other. Thus, the change in state of the $i$th node is a function of some (often nonlinear) internal process and the state of its network neighbors. 
 
-$\frac{dx}{dt} = rx(1 - \frac{x}{K})$
+Consider as an example the following dynamical model
+\begin{equation}
+  \frac{dx_i}{dt} = -(x_i - r_1)(x_i - r_2)(x_i - r_3) + D\sum_{j=1}^N A_{i,j}x_j.
+\end{equation}
+Here, $F(x_i) = -(x_i - r_1)(x_i - r_2)(x_i - r_3)$, where $x_i$ is a numeric state of the $i$th node and $r_1 < r_2 < r_3$ are parameters which control the position of the equilibria in the absence of coupling. The coupling function $G(x_i, x_j) = D\sum_{j=1}^N A_{i,j}x_j$---we'll come back to this below. Before we do, let's get a sense of what's happening with $F(x_i)$.
 
-where $x$ is the number of individuals in a population, $t$ is time, $r$ is an intrinsic growth rate, and $K$ a maximum population. When this equation is deterministic, as above, $K$ is a true maximum and $x$ never goes below zero (assuming a reasonable initial value). 
+The node dynamics $F(x_i) = -(x_i - r_1)(x_i - r_2)(x_i - r_3)$ is known as a double-well model. If we plot several possible initial values of $x$ against $t$ we get something like this:
 
-Implementing this equation with *deSolve* can be done as follows:
-
-```{r eval = TRUE}
+```{r echo = FALSE, eval = TRUE, fig.width = 4, fig.height = 4}
 library(deSolve)
+library(sfsmisc)
 
-.growth <- list(xinit = 0.1, r = 1, K = 5)
-growth <- function(t, x, params) {
-    with(params, {
-        dx <- r*x*(1 - (x/K))
-        return(list(dx))
-    })
-}
-```
-
-I like to use a list of standard model parameters (including standard initial values), which I give a dot name which matches the model function. So, `.growth` is a named list (supporting, for example, easy access with `with()` calls) which includes an initial value ("xinit") and the two model parameters $r$ and $K$. The function `growth()` is written in deSolve's preferred format and returns a derivative. (As a side note, `growth()` returns the derivative as the first element in a list because of functionality in *deSolve*, but I won't use that functionality here).
-
-We can simulate this model at specific time steps, and plot the result:
-
-```{r eval = TRUE}
-simtimes <- seq(0, 10, by = 0.01)
-x.ode <- ode(.growth$xinit, simtimes, growth, .growth)
-
-plot(x.ode[, 1], x.ode[, 2], type = "l", xlab = "Time", ylab = "x")
-```
-
-The output from `ode()` is a matrix, the first column of which is the time variable values and the remaining columns are the values of the variables (e.g., $x$) at those times. 
-
-# An SDE version
-
-It should be easy for the user to say, "Ok, now show me that with noise!" Unfortunately, it's not that easy. Enter the *sdn* package. *sdn* provides a function, `sde()`, which attemps to make the transition from ODE to SDE as seamless as possible. We are now interested in the following model:
-
-$dx = (rx(1 - \frac{x}{K}))dt + d\sigma W$
-
-I hope I have written that correctly. In any case, our observable $x$ is a sum of a deterministic process (i.e., $rx(1 - \frac{x}{K})$ and a noise process $W$ with strength (standard deviation) $\sigma$. We can no longer rely on *deSolve*'s machinery to compute our answer for us, so `sde()` uses the brute force method to simulate each time step based on the initial conditions and each time step before the current one. Thus, `sde()` requires that you also specify the first and last time step, the $\Delta t$, and the noise strength $\sigma$. Our simulation code now looks like this:
-
-```{r eval = TRUE}
-library(sdn)
-
-.growth$sigma <- 0.1
-control <- list(times = 0:10, deltaT = 0.01)
-
-x.sde <- sde(.growth$xinit, control$times, growth, .growth, control)
-```
-
-Note that we are still using `.growth` and `growth()` from before. Additionally, we can pass a sequence of times---this is because I found it easier to think about time that way. 
-
-Let's plot the two results together:
-
-```{r eval = TRUE}
-plot(x.ode[, 1], x.ode[, 2], type = "l", xlab = "Time", ylab = "x")
-lines(x.sde[, 1], x.sde[, 2], type = "l", col = 2)
-```
-
-# Brownian motion
-
-Sometimes we need more than one variable. When the system can be modeled as a set of coupled single-variable systems, we can use an adjacency matrix method---more on that below. If each node in our system must be described by more than one variable, however, we need a different workflow, demonstrated in this section. 
-
-Let's look first at 1-dimensional Brownian motion with no drift:
-
-```{r eval = TRUE}
-.Brownian1D <- list(xinit = 0, mu = 0, sigma = 1e-1)
-Brownian1D <- function(t, x, params) {
-    with(params, {
-        dx <- mu*x
-        return(list(dx))
-    })
-}
-
-x <- sde(.Brownian1D$xinit, control$times, Brownian1D, .Brownian1D, control)
-plot(x[, 1], x[, 2], type = "l", xlab = "Time", ylab = "x")
-```
-
-Note that our workflow is very similar---all we've had to do is write a different deterministic part of the model. 
-
-To make a 2-dimensional Brownian motion model we need to use a trick recommended in the *deSolve* documentation, as follows:
-
-```{r eval = TRUE}
-.Brownian2D <- list(xinit = c(y = 0, z = 0), mu = 0, sigma = 1e-1, N = 1, nstatevars = 2)
-Brownian2D <- function(t, x, params) {
-    with(params, {
-        y <- x[1:N]
-        z <- x[(N+1):(2*N)]
-
-        dy <- mu*y
-        dz <- mu*z
-        return(list(dy, dz))
-    })
-}
-
-res <- sde(.Brownian2D$xinit, control$times, Brownian2D, .Brownian2D, control)
-```
-
-Our "derivative" now is the concatenation of the derivatives for our two variables. We can plot our result over time
-
-```{r eval = TRUE}
-matplot(res[, 1], res[, 2:3], type = "l", lty = 1, col = 1, lwd = 1, xlab = "Time", ylab = "x")
-```
-
-or showing the bivariate random walk:
-
-```{r eval = TRUE}
-xlim <- ylim <- c(-max(res[, 2:3]), max(res[, 2:3]))
-plot(NULL, xlim = xlim, ylim = ylim, xlab = "x", ylab = "y")
-abline(h = 0, lwd = 0.5)
-abline(v = 0, lwd = 0.5)
-lines(res[, 2], res[, 3])
-points(res[1, 2], res[1, 3], col = 3, pch = 16, cex = 2) # starting point
-points(res[nrow(res), 2], res[nrow(res), 3], col = 2, pch = 16, cex = 2) # stopping point
-```
-
-# The guts
-
-My `sde()` function is a brute force simulator, using the derivative function (the deterministic part) to simulate each next state from the previous state. A trick, suggested by the *sde* package, is to generate all the random numbers ahead of time. This improves the computation speed. Thus, *sdn* includes some helper functions (`determine_ntimesteps()`, `preallocate_noise()`) which are called by `sde()` and enable the user to remain in the model space and user time units, not worrying so much about the implementation. Solving SDEs with *sdn* will be slower than solving ODEs with *deSolve*, but hopefully it won't be more confusing. 
-
-# Dynamics on networks
-
-If we want to simulate dynamics on networks, we often have a model that looks something like this:
-
-$\frac{dx}{dt} = -(x - r_1)(x - r_2)(x - r_3) + D\sum_{j=1}^N a_{i,j}x_j$
-
-The first part of the model is some nonlinear dynamics (here, a cubic function of $x$) and the second is a coupling function. Here, $D$ can be thought of a coupling strength, so the coupling function simply sums the states of all of node $i$'s neighbors, scaled by $D$. To implement this in *sdn* as an SDE, we might do something like this:
-
-```{r}
-.doublewell <- list(
-    xinit.low = 1, xinit.high = 5,
-    r = c(1, 3, 5),
-    D = 0.05, Ds = seq(0, 1, length.out = lout),
-    u = 0, us.up = seq(0, 5, length.out = lout), us.down = seq(0, -5, length.out = lout),
-    sigma = 1e-2,
-    lower.basin.limit = 2, upper.basin.limit = 4
+.dw <- list(
+    r = c(1, 3, 5)
 )
-
-doublewell <- function(t, x, params) {
+dw <- function(t, x, params) {
     with(params, {
-        coupling <- D*rowSums(A*outer(rep(1, length(x)), x))
-        dx <- -(x - r[1])*(x - r[2])*(x - r[3]) + coupling + u
+        dx <- -(x - r[1])*(x - r[2])*(x - r[3])
         return(list(c(dx)))
     })
 }
-```
 
-Both `.doublewell` and `doublewell()` are included in *sdn*; `.doublewell` has more information than we need at present. We can simulate the states of the variables in a network for a given level of $D$ as follows:
+times <- seq(0, 1, length.out = 500)
+X <- ode(2, times, dw, .dw)
+xinits <- seq(5)
+n <- 8
+Xs <- lapply(xinits, ode, times = times, func = dw, parms = .dw)
 
-```{r eval = TRUE}
-library(igraph)
-g <- largest_component(sample_gnm(10, 20, directed = FALSE, loops = FALSE))
-A <- as_adj(g, "both", sparse = FALSE)
-N <- vcount(g)
-
-params <- c(.doublewell, list(A = A))
-params$sigma <- 0.1 # to make the noise more visible
-
-x.sde <- sde(rep(.doublewell$xinit.low, N), control$times, doublewell, params, control)
-```
-
-# Simulating across a control parameter range
-
-When we need to consider the equilibrium state of a system across a range of parameter values, we need to simulate the system many times in almost the same way every time, changing only the one parameter. *sdn* provides `solve_in_range()` for this purpose. 
-
-```{r eval = TRUE}
-library(parallel) # required for solve_in_range, may not work on Windows
-ncores <- detectCores()-1
-
-X.ode <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "ode")
-X.sde <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "sde")
-
-xlim <- range(params$Ds)
-ylim <- range(c(X.ode, X.sde))
-
-matplot(
-    params$Ds, X.ode, xlim = xlim, ylim = ylim, xlab = "D", ylab = "x", lty = 1, col = 1, lwd = 1, type = "l"
+palette("Dark 2")
+par(mar = c(5, 5, 0.5, 0.5))
+plot(
+    NULL, xlim = range(times), ylim = range(.dw$r),
+    xlab = "t", ylab = "x", font.lab = 3, cex.lab = 2, cex.lab = 1.75,
+    axes = FALSE
 )
-matlines(params$Ds, X.sde, lty = 1, col = 2, lwd = 1)
+eaxis(1)
+eaxis(2)
+invisible(mapply(function(X, i) lines(X, col = i, lwd = 2), Xs, xinits))
 ```
