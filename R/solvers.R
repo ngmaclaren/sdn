@@ -1,7 +1,8 @@
-#' @import graphics stats parallel deSolve
+#' @import graphics stats parallel Matrix deSolve
 library(graphics)
 library(stats)
 library(parallel)
+library(Matrix)
 library(deSolve)
 
 #' Simulate ODEs
