@@ -1,13 +1,10 @@
-#' @import graphics stats parallel Matrix deSolve
-library(graphics)
-library(stats)
-library(parallel)
-library(Matrix)
-library(deSolve)
+                                        # #' @import graphics stats parallel Matrix deSolve
+#' @import parallel Matrix deSolve
+NULL
 
-#' Simulate ODEs
+#' Simulate ODEs across a control parameter range.
 #' 
-#' @description Simulate a system of ODEs across a range of a control parameter.
+#' @description Simulate a system of ODEs across a range of control parameter values.
 #'
 #' @param rng The range of values the control parameter takes. 
 #' @param varname The name of the control parameter. Must match a parameter in params list.
@@ -22,15 +19,15 @@ library(deSolve)
 #'
 #' @return An L x N matrix of final values, where L is the length of `rng` and N is the length of `initialvalue`.
 #' @examples
-#' library(graphics)
-#' library(stats)
+#' # library(graphics)
+#' # library(stats)
 #' library(deSolve)
 #' library(sdn)
 #' 
 #' ## Generate an adjacency matrix
 #' library(igraph)
 #' g <- largest_component(sample_gnm(10, 20, directed = FALSE, loops = FALSE))
-#' A <- as_adj(g, "both", sparse = FALSE)
+#' A <- as_adj(g, "both")#, sparse = FALSE)
 #' N <- vcount(g)
 #' 
 #' ## solve_in_range() assumes mclapply() is available, so may not work on Windows
@@ -43,8 +40,12 @@ library(deSolve)
 #' control <- list(times = 0:10, deltaT = 0.01, ncores = ncores)
 #' simtimes <- seq(control$times[1], control$times[length(control$times)], by = control$deltaT) # for comparison between ode() and sde()
 #' 
-#' X.ode <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "ode")
-#' X.sde <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "sde")
+#' system.time(
+#'   X.ode <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "ode")
+#' ) # 23 seconds
+#' system.time(
+#'   X.sde <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "sde")
+#' ) # 108 seconds
 #' 
 #' xlim <- range(params$Ds)
 #' ylim <- range(c(X.ode, X.sde))
@@ -158,8 +159,8 @@ preallocate_noise <- function(sigma, ntimesteps, nnodes) {
 #' @return A data frame
 #' @details Returns a data frame that looks like deSolve's ode() output: a column of time steps, then a column of values at each timestep for each variable in the model.
 #' @examples
-#' library(graphics)
-#' library(stats)
+#' # library(graphics)
+#' # library(stats)
 #' library(deSolve)
 #' library(sdn)
 #' 
@@ -170,7 +171,7 @@ preallocate_noise <- function(sigma, ntimesteps, nnodes) {
 #'         return(list(dx))
 #'    })
 #'}
-#'control <- list(times = 0:10, deltaT = 0.01)
+#' control <- list(times = 0:10, deltaT = 0.01)
 #' simtimes <- seq(control$times[1], control$times[length(control$times)], by = control$deltaT) # for comparison between ode() and sde()
 #' 
 #' x.ode <- ode(.growth$xinit, simtimes, growth, .growth)
@@ -220,7 +221,7 @@ preallocate_noise <- function(sigma, ntimesteps, nnodes) {
 #' library(igraph)
 #'
 #' g <- make_full_graph(4)
-#' A <- as_adj(g, "both", sparse = FALSE)
+#' A <- as_adj(g, "both")#, sparse = FALSE)
 #' N <- vcount(g)
 #' model <- SIS
 #' params <- c(.SIS, list(A = A))
@@ -292,7 +293,7 @@ sde <- function(initialvalue, times, func, parms = list(), control = list()) { #
 #'
 #' It is not intended that this function is used on its own, but rather inside sde(). This is accomplished by means of a list with a particular name, "absorbing.state", and two named values, "value" and "which", e.g. control <- list(..., absorbing.state = list(value = 0, which = "floor")). See the examples.
 #' @examples
-#' library(graphics)
+#' # library(graphics)
 #' library(igraph)
 #' library(sdn)
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/solvers.R
 \name{solve_in_range}
 \alias{solve_in_range}
-\title{Simulate ODEs}
+\title{Simulate ODEs across a control parameter range.}
 \usage{
 solve_in_range(
   rng,
@@ -36,21 +36,21 @@ solve_in_range(
 An L x N matrix of final values, where L is the length of `rng` and N is the length of `initialvalue`.
 }
 \description{
-Simulate a system of ODEs across a range of a control parameter.
+Simulate a system of ODEs across a range of control parameter values.
 }
 \details{
 Solves an ODE or SDE across a range of parameter values. If `kind = "ode"`, requires deSolve.
 }
 \examples{
-library(graphics)
-library(stats)
+# library(graphics)
+# library(stats)
 library(deSolve)
 library(sdn)
 
 ## Generate an adjacency matrix
 library(igraph)
 g <- largest_component(sample_gnm(10, 20, directed = FALSE, loops = FALSE))
-A <- as_adj(g, "both", sparse = FALSE)
+A <- as_adj(g, "both")#, sparse = FALSE)
 N <- vcount(g)
 
 ## solve_in_range() assumes mclapply() is available, so may not work on Windows
@@ -63,8 +63,12 @@ params$sigma <- 0.1
 control <- list(times = 0:10, deltaT = 0.01, ncores = ncores)
 simtimes <- seq(control$times[1], control$times[length(control$times)], by = control$deltaT) # for comparison between ode() and sde()
 
-X.ode <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "ode")
-X.sde <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "sde")
+system.time(
+  X.ode <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "ode")
+) # 23 seconds
+system.time(
+  X.sde <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "sde")
+) # 108 seconds
 
 xlim <- range(params$Ds)
 ylim <- range(c(X.ode, X.sde))

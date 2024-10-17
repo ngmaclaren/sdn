@@ -3,23 +3,26 @@
 #' Paired functions and lists of parameters to standardize using deSolve's ode() to compute ground truth simulations/solutions of several ODEs on various networks. 
 #' @name ODEs
 #' @param t An arbitrary time.
-#' @param x The current state of the system.
-#' @param params The list of model parameters.
-#' @details Names without dots are functions which compute derivatives and are in deSolve's standard form. Each function can be used in a one-time way to compute the derivative of a system given an arbitrary time t, current state x, and parameters. More commonly, passed to deSolve's ode() as the model to be simulated.
-#' Dot names are lists of standard model parameters. Pass the required coupling strength like `c(.name, list(D = D))`. The adjacency matrix is also required for solutions on networks; pass it in the same way. If analyzing a single variable, x should have length 1 and pass A = matrix(0).
+#' @param x The current state of the system. When N > 1, x is a vector with x_i representing the current state of the i'th node. 
+#' @param params A list of model parameters.
+#' @details Names without dots are functions which compute derivatives and are in deSolve's standard form. Each function can be used in a one-time way to compute the derivative of a system given an arbitrary time t, current state x, and parameters. More commonly, passed to deSolve's ode() or sdn's sde() as the model to be simulated.
+#' Dot names are lists of standard model parameters. The adjacency matrix is also required for solutions on networks; concatenate it to the params list like `c(params, list(A = A))`. If analyzing a single variable, x should have length 1 and pass A = matrix(0).
 #' @return A vector of derivatives
 #' @examples
 #' library(parallel)
 #' ncores <- detectCores()-1
 #' library(igraph)
 #' library(deSolve)
+#' library(sdn)
 #' g <- sample_pa(50, m = 2, directed = FALSE, start.graph = make_full_graph(3))
 #' N <- vcount(g)
-#' A <- as_adj(g, "both", sparse = FALSE)
+#' A <- as_adj(g, "both")#, sparse = FALSE)
 #' times <- 0:15
 #' params <- c(.doublewell, list(A = A))
 #' control <- list(times = times, ncores = ncores)
-#' X <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "ode")
+#' system.time(
+#'   X <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "ode")
+#' ) # 63 seconds with 4 i3-5010U CPU @ 2.10 GHz
 #' bifplot(X, params$Ds, TRUE, col = adjustcolor(1, 0.25))
 NULL
 
@@ -31,7 +34,7 @@ NULL
     D = 0.05, Ds = seq(0, 1, length.out = 100),
     u = 0, us.up = seq(0, 5, length.out = 100), us.down = seq(0, -5, length.out = 100),
     sigma = 1e-2,
-    basin.limit = 3 # should be the same from either direction; separatrix (= r_2)
+    basin.limit = 3 # separatrix
 )
 
 #' @rdname ODEs

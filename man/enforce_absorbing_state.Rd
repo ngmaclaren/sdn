@@ -25,7 +25,7 @@ Some models have absorbing states below or above which values should not stray. 
 It is not intended that this function is used on its own, but rather inside sde(). This is accomplished by means of a list with a particular name, "absorbing.state", and two named values, "value" and "which", e.g. control <- list(..., absorbing.state = list(value = 0, which = "floor")). See the examples.
 }
 \examples{
-library(graphics)
+# library(graphics)
 library(igraph)
 library(sdn)
 

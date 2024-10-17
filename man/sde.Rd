@@ -27,8 +27,8 @@ Simulate stochastic differential equations using the Euler-Maruyama method. Outp
 Returns a data frame that looks like deSolve's ode() output: a column of time steps, then a column of values at each timestep for each variable in the model.
 }
 \examples{
-library(graphics)
-library(stats)
+# library(graphics)
+# library(stats)
 library(deSolve)
 library(sdn)
 
@@ -89,7 +89,7 @@ points(res[nrow(res), 2], res[nrow(res), 3], col = 2, pch = 16, cex = 2) # stopp
 library(igraph)
 
 g <- make_full_graph(4)
-A <- as_adj(g, "both", sparse = FALSE)
+A <- as_adj(g, "both")#, sparse = FALSE)
 N <- vcount(g)
 model <- SIS
 params <- c(.SIS, list(A = A))
