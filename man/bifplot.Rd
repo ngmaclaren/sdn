@@ -22,7 +22,6 @@ Given the output of sdn::solve_in_range(), plot the bifurcation diagram of the s
 This is meant as a quick diagnostic plot.
 }
 \examples{
-library(graphics)
 library(deSolve)
 library(sdn)
 rs <- .saddlenode$rs
@@ -31,9 +30,9 @@ bifplot(x, rs)
 
 library(igraph)
 g <- sample_pa(25, m = 2, directed = FALSE, start.graph = make_full_graph(3))
-A <- as_adj(g, "both", sparse = FALSE)
+AL <- as_adj_list(g, "all")
 N <- vcount(g)
-params <- c(list(A = A), .doublewell)
+params <- c(list(AL = AL), .doublewell)
 control <- list(times = seq(0, 1, length.out = 100))
 X <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control)
 bifplot(X, params$Ds, showmean = TRUE, col = 1)

@@ -69,7 +69,7 @@ params <- c(.doublewell, list(AL = AL))
 control <- list(times = times, ncores = ncores)
 system.time(
   X <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "ode")
-) # 63 seconds with 4 i3-5010U CPU @ 2.10 GHz
+) # 4.553 seconds with 4 i3-5010U CPU @ 2.10 GHz; using the adjacency matrix takes 63 seconds
 bifplot(X, params$Ds, TRUE, col = adjustcolor(1, 0.25))
 }
 \keyword{datasets}

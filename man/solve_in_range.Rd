@@ -42,22 +42,20 @@ Simulate a system of ODEs across a range of control parameter values.
 Solves an ODE or SDE across a range of parameter values. If `kind = "ode"`, requires deSolve.
 }
 \examples{
-# library(graphics)
-# library(stats)
 library(deSolve)
 library(sdn)
 
-## Generate an adjacency matrix
+## Generate an adjacency list
 library(igraph)
 g <- largest_component(sample_gnm(10, 20, directed = FALSE, loops = FALSE))
-A <- as_adj(g, "both")#, sparse = FALSE)
+AL <- as_adj_list(g, "all")
 N <- vcount(g)
 
 ## solve_in_range() assumes mclapply() is available, so may not work on Windows
 library(parallel)
 ncores <- detectCores()-1
 
-params <- c(.doublewell, list(A = A))
+params <- c(.doublewell, list(AL = AL))
 params$sigma <- 0.1
 
 control <- list(times = 0:10, deltaT = 0.01, ncores = ncores)
@@ -65,10 +63,10 @@ simtimes <- seq(control$times[1], control$times[length(control$times)], by = con
 
 system.time(
   X.ode <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "ode")
-) # 23 seconds
+) # 1.124 seconds; 23 seconds if used adj matrix
 system.time(
   X.sde <- solve_in_range(params$Ds, "D", doublewell, rep(params$xinit.low, N), params, control, "sde")
-) # 108 seconds
+) # 3.922 seconds, 108 seconds w/ adjacency matrix
 
 xlim <- range(params$Ds)
 ylim <- range(c(X.ode, X.sde))

@@ -27,8 +27,6 @@ Simulate stochastic differential equations using the Euler-Maruyama method. Outp
 Returns a data frame that looks like deSolve's ode() output: a column of time steps, then a column of values at each timestep for each variable in the model.
 }
 \examples{
-# library(graphics)
-# library(stats)
 library(deSolve)
 library(sdn)
 
@@ -76,7 +74,7 @@ res <- sde(.Brownian2D$xinit, control$times, Brownian2D, .Brownian2D, control)
 
 matplot(res[, 1], res[, 2:3], type = "l", lty = 1, col = 1, lwd = 1, xlab = "Time", ylab = "x")
 
-xlim <- ylim <- c(-max(res[, 2:3]), max(res[, 2:3]))
+xlim <- ylim <- c(-max(abs(res[, 2:3])), max(abs(res[, 2:3])))
 plot(NULL, xlim = xlim, ylim = ylim, xlab = "x", ylab = "y")
 abline(h = 0, lwd = 0.5)
 abline(v = 0, lwd = 0.5)
@@ -89,10 +87,10 @@ points(res[nrow(res), 2], res[nrow(res), 3], col = 2, pch = 16, cex = 2) # stopp
 library(igraph)
 
 g <- make_full_graph(4)
-A <- as_adj(g, "both")#, sparse = FALSE)
+AL <- as_adj_list(g, "all")
 N <- vcount(g)
 model <- SIS
-params <- c(.SIS, list(A = A))
+params <- c(.SIS, list(AL = AL))
 control <- list(
   deltaT = 0.01, times = 0:50,
   absorbing.state = list(value = 0, which = "floor")

@@ -20,7 +20,6 @@ Given the output of deSolve::ode() or sdn::sde(), plot the time evolution of the
 This is meant as a quick diagnostic plots. At least one consequence of this is that `col` is hard-coded inside the function...
 }
 \examples{
-library(graphics)
 library(deSolve)
 library(sdn)
 
@@ -31,9 +30,9 @@ abline(h = 0, lty = 2)
 
 library(igraph)
 g <- sample_pa(25, m = 2, directed = FALSE, start.graph = make_full_graph(3))
-A <- as_adj(g, "both", sparse = FALSE)
+AL <- as_adj_list(g, "all")
 N <- vcount(g)
-params <- c(list(A = A), .doublewell)
+params <- c(list(AL = AL), .doublewell)
 control <- list(times = seq(0, 1, length.out = 100))
 X <- ode(rep(.doublewell$xinit.low, N), control$times, doublewell, params)
 time_ev(X, showmean = TRUE)

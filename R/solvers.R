@@ -293,15 +293,14 @@ sde <- function(initialvalue, times, func, parms = list(), control = list()) { #
 #'
 #' It is not intended that this function is used on its own, but rather inside sde(). This is accomplished by means of a list with a particular name, "absorbing.state", and two named values, "value" and "which", e.g. control <- list(..., absorbing.state = list(value = 0, which = "floor")). See the examples.
 #' @examples
-#' # library(graphics)
 #' library(igraph)
 #' library(sdn)
 #'
 #' g <- make_full_graph(4)
-#' A <- as_adj(g, "both", sparse = FALSE)
+#' AL <- as_adj_list(g, "all")
 #' N <- vcount(g)
 #' model <- SIS
-#' params <- c(.SIS, list(A = A))
+#' params <- c(.SIS, list(AL = AL))
 #' control <- list(
 #'   deltaT = 0.01, times = 0:50,
 #'   absorbing.state = list(value = 0, which = "floor")
@@ -322,7 +321,7 @@ sde <- function(initialvalue, times, func, parms = list(), control = list()) { #
 #' abline(h = 0, col = 2)
 #'
 #' model <- mutualistic
-#' params <- c(.mutualistic, list(A = A))
+#' params <- c(.mutualistic, list(AL = AL))
 #' params$D <- 0.05
 #' params$u <- -5
 #' control$times <- 0:10
@@ -330,7 +329,7 @@ sde <- function(initialvalue, times, func, parms = list(), control = list()) { #
 #' time_ev(X, ylim = c(-0.001, 0.001))
 #'
 #' model <- genereg
-#' params <- c(.genereg, list(A = A))
+#' params <- c(.genereg, list(AL = AL))
 #' params$D <- 0.25
 #' control$times <- 0:50
 #' X <- sde(rep(10, N), control$times, model, params, control)
