@@ -1,6 +1,6 @@
 Package: sdn
 Version: 0.2-1
-Date: 2024-10-15
+Date: 2024-10-19
 Title: Simulate dynamics on networks
 Author: Neil G. MacLaren [aut, cre]
 Maintainer: Neil G. MacLaren <neil.g.maclaren@gmail.com>
