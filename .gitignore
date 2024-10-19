@@ -3,3 +3,5 @@
 
 # ignoring because it's scratch paper for solving.Rmd
 /vignettes/solving.R
+
+/test/
