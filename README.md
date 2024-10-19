@@ -10,6 +10,6 @@ For now, I recommend cloning this repository, then using the following shell com
 
 ```sh
 R CMD build sdn
-R CMD INSTALL sdn_0.1-1.tar.gz
+R CMD INSTALL sdn_0.2-1.tar.gz
 ```
 
