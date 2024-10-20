@@ -14,6 +14,7 @@ NULL
 #' @param control A list including some subset of nsamples, spacing, deltaT, times, ncores, or silent, depending on the application.
 #' @param kind To solve with or without noise
 #' @param allsamples Not currently used
+#' @param ... For passing arguments to deSolve's ode(), e.g. method = "ode45"
 #' 
 #' @details Solves an ODE or SDE across a range of parameter values. If `kind = "ode"`, requires deSolve. 
 #'
@@ -59,7 +60,8 @@ solve_in_range <- function(
                            params = list(), # for the func
                            control = list(), # nsamples, spacing, deltaT, times, ncores, silent
                            kind = "ode", # or "sde"
-                           allsamples = FALSE # returns 3D array
+                           allsamples = FALSE, # returns 3D array
+                           ...
                            ) {
                                         # If mclapply won't run, try with ncores = 1
     if(!("ncores" %in% names(control))) control$ncores <- 1
@@ -70,7 +72,7 @@ solve_in_range <- function(
         results <- mclapply(
             rng, function(val) {
                 params[[varname]] <- val
-                ode(initialvalue, control$times, func, params)
+                ode(initialvalue, control$times, func, params, ...)
             }, mc.cores = control$ncores, mc.silent = control$silent
         )
                                         # Treat the final value of x_i as x_i^*
