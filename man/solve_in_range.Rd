@@ -12,7 +12,8 @@ solve_in_range(
   params = list(),
   control = list(),
   kind = "ode",
-  allsamples = FALSE
+  allsamples = FALSE,
+  ...
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ solve_in_range(
 \item{kind}{To solve with or without noise}
 
 \item{allsamples}{Not currently used}
+
+\item{...}{For passing arguments to deSolve's ode(), e.g. method = "ode45"}
 }
 \value{
 An L x N matrix of final values, where L is the length of `rng` and N is the length of `initialvalue`.
