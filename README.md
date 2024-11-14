@@ -4,6 +4,10 @@ An R package for simulating dynamics on networks. The primary motivations for th
 
 Version 0.2-1 introduces a breaking change: the default models, which I used in several projects, have been switched from adjacency matrix to adjacency list computation. The new version should be much faster. 
 
+## Models
+
+Recently updated to include models from [Barzon et al. 2024](https://github.com/gbarzon/jacobian_geometry), but check parameter values and ranges to confirm desired behavior. Code for new models is in `./R/barzon-dynamics.R`. Other models can be found in `./R/models.R` and `./R/normal-forms.R`. 
+
 ## Installation
 
 For now, I recommend cloning this repository, then using the following shell commands to build and install the package (assuming your working directory is the one that contains the cloned sdn directory):
