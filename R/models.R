@@ -6,7 +6,7 @@
 #' @param x The current state of the system. When N > 1, x is a vector with x_i representing the current state of the i'th node. 
 #' @param params A list of model parameters.
 #' @details Names without dots are functions which compute derivatives and are in deSolve's standard form. Each function can be used in a one-time way to compute the derivative of a system given an arbitrary time t, current state x, and parameters. More commonly, passed to deSolve's ode() or sdn's sde() as the model to be simulated.
-#' Dot names are lists of standard model parameters. The adjacency list is also required for solutions on networks; concatenate it to the params list like `c(params, list(AL = AL))`; note that the variable name `AL` is required. If analyzing a single variable, x should have length 1 and pass AL = 0.
+#' Dot names are lists of standard model parameters. The adjacency list is also required for solutions on networks; concatenate it to the params list like `c(params, list(AL = AL))`; note that the variable name `AL` is required. If analyzing a single variable, x should have length 1 and pass AL = 0. If using an adjacency matrix instead, which is recommended only for relatively small networks (< 500 nodes?), use `list(A = A, use.matrix = TRUE)` instead.
 #' @return A vector of derivatives
 #' @examples
 #' library(parallel)
@@ -34,15 +34,19 @@ NULL
     D = 0.05, Ds = seq(0, 1, length.out = 100),
     u = 0, us.up = seq(0, 5, length.out = 100), us.down = seq(0, -5, length.out = 100),
     sigma = 1e-2,
-    basin.limit = 3 # separatrix
+    basin.limit = 3, # separatrix
+    use.matrix = FALSE
 )
 
 #' @rdname ODEs
 #' @export
 doublewell <- function(t, x, params) {
     with(params, {
-        ## coupling <- D*rowSums(A*outer(rep(1, length(x)), x))
-        coupling <- D*sapply(AL, function(vs) sum(x[vs]))
+        if(params$use.matrix) {
+            coupling <- D*rowSums(A*outer(rep(1, length(x)), x))
+        } else {
+            coupling <- D*sapply(AL, function(vs) sum(x[vs]))
+        }
         dx <- -(x - r[1])*(x - r[2])*(x - r[3]) + coupling + u
         return(list(c(dx)))
     })
@@ -56,15 +60,19 @@ doublewell <- function(t, x, params) {
     D = 0.05, Ds = seq(0, 1, length.out = 100),
     u = 0,
     sigma = 1e-3,#1e-5,
-    basin.limit = 5e-3 # epidemic threshold, 5*sigma, clearly distinguishable from zero
+    basin.limit = 5e-3, # epidemic threshold, 5*sigma, clearly distinguishable from zero
+    use.matrix = FALSE
 )
 
 #' @rdname ODEs
 #' @export
 SIS <- function(t, x, params) {
     with(params, {
-        ## coupling <- D*rowSums(A*outer(1 - x, x))
-        coupling <- D*mapply(function(xi, vs) sum((1 - xi)*x[vs]), x, AL)
+        if(params$use.matrix) {
+            coupling <- D*rowSums(A*outer(1 - x, x))
+        } else {
+            coupling <- D*mapply(function(xi, vs) sum((1 - xi)*x[vs]), x, AL)
+        }
         dx <- coupling - mu*x
         return(list(c(dx)))
     })
@@ -78,15 +86,19 @@ SIS <- function(t, x, params) {
     D = 1, Ds = seq(0, 1, length.out = 100),
     u = 0, us.down = seq(0, -1, length.out = 100),
     sigma = 1e-3,
-    basin.limit = 5e-3 # cell death, 5*sigma, clearly distinguishable from zero
+    basin.limit = 5e-3, # cell death, 5*sigma, clearly distinguishable from zero
+    use.matrix = FALSE
 )
 
 #' @rdname ODEs
 #' @export
 genereg <- function(t, x, params) {
     with(params, {
-        ## coupling <- D*rowSums(A*outer(rep(1, length(x)), (x^h)/(1 + (x^h))))
-        coupling <- D*sapply(AL, function(vs) sum(x[vs]^h/(1 + x[vs]^h)))
+        if(params$use.matrix) {
+            coupling <- D*rowSums(A*outer(rep(1, length(x)), (x^h)/(1 + (x^h))))
+        } else {
+            coupling <- D*sapply(AL, function(vs) sum(x[vs]^h/(1 + x[vs]^h)))
+        }
         dx <- ifelse( # handles situation where control parameter is u. If sde, use absorbing.state list in control
             x > 0,
             -B*(x^f) + coupling + u,
@@ -104,15 +116,19 @@ genereg <- function(t, x, params) {
     D = 0.05, Ds = seq(0, 3, length.out = 100),
     u = 0, us.up = seq(0, 0.5, length.out = 100), us.down = seq(0, -5, length.out = 100),
     sigma = 1e-3,
-    basin.limit = 1 # Allee constant (= C)
+    basin.limit = 1, # Allee constant (= C)
+    use.matrix = FALSE
 )
 
 #' @rdname ODEs
 #' @export
 mutualistic <- function(t, x, params) {
     with(params, {
-        ## coupling <- D*rowSums(A*(outer(x, x)/(Dtilde + outer(E*x, H*x, `+`))))
-        coupling <- D*mapply(function(xi, vs) sum((xi*x[vs])/(Dtilde + E*xi + H*x[vs])), x, AL)
+        if(params$use.matrix) {
+            coupling <- D*rowSums(A*(outer(x, x)/(Dtilde + outer(E*x, H*x, `+`))))
+        } else {
+            coupling <- D*mapply(function(xi, vs) sum((xi*x[vs])/(Dtilde + E*xi + H*x[vs])), x, AL)
+        }
         dx <- ifelse(
             x > 0,
             B + x*(1 - (x/K))*((x/C) - 1) + coupling + u,
