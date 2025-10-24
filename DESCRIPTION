@@ -1,12 +1,12 @@
 Package: sdn
-Version: 0.2-1
-Date: 2024-10-19
+Version: 0.2-2
+Date: 2025-10-23
 Title: Simulate dynamics on networks
 Author: Neil G. MacLaren [aut, cre]
 Maintainer: Neil G. MacLaren <neil.g.maclaren@gmail.com>
 Imports: parallel, Matrix, deSolve
 Suggests: igraph, knitr, rmarkdown
-Description: Simulsate dynamics on networks using ordinary or stochastic differential equations. Relies on deSolve for ODEs. For SDEs, uses a simple Euler-Maruyama implementation to produce an object like the output from deSolve::ode().
+Description: Simulsate dynamics on networks using ordinary or stochastic differential equations. Relies on deSolve for ODEs. For SDEs, uses a simple Euler-Maruyama implementation to produce an object like the output from deSolve::ode(). Methods to implement game theoretic models on networks are under development.
 VignetteBuilder: knitr
 BuildVignettes: no
 License: GPL-3
