@@ -53,7 +53,7 @@ Paired functions and lists of parameters to standardize using deSolve's ode() to
 }
 \details{
 Names without dots are functions which compute derivatives and are in deSolve's standard form. Each function can be used in a one-time way to compute the derivative of a system given an arbitrary time t, current state x, and parameters. More commonly, passed to deSolve's ode() or sdn's sde() as the model to be simulated.
-Dot names are lists of standard model parameters. The adjacency list is also required for solutions on networks; concatenate it to the params list like `c(params, list(AL = AL))`; note that the variable name `AL` is required. If analyzing a single variable, x should have length 1 and pass AL = 0. If using an adjacency matrix instead, which is recommended only for relatively small networks (< 500 nodes?), use `list(A = A, use.matrix = TRUE)` instead.
+Dot names are lists of standard model parameters. The adjacency list is also required for solutions on networks; concatenate it to the params list like `c(params, list(AL = AL))`; note that the variable name `AL` is required. If analyzing a single variable, x should have length 1 and pass AL = 0. If using an adjacency matrix instead, which is recommended only for relatively small networks (< 500 nodes?), use `list(A = A)` and `params$use.matrix = TRUE` instead.
 }
 \examples{
 library(parallel)
