@@ -72,6 +72,7 @@ calc_reprate <- function(u, g, params) { # u is a igraph.vs, g is an igraph, eta
 ##'
 ##' This function takes, as its main input, a selected node, u. Ordinarily this will be a randomly selected node, but the function doesn't require it. Then, a neighbor v of node u is selected at random, proportional to the reproductive rates of u's neighbors. This function returns the state of v, which should ordinarily be assigned to u, completing the death-birth cycle.
 ##' @export
+##' @examples
 ##' library(igraph)
 ##' library(sdn)
 ##' 
@@ -130,6 +131,7 @@ death_birth <- function(u, g, params) {
 ##'
 ##' The name for this function follows the pattern ode (ordinary differential equations), sde (stochastic differential equations), ede (evolutionary...), but the 'de' doesn't mean anything. 
 ##' @export
+##' @examples
 ##' library(igraph)
 ##' library(sdn)
 ##'

@@ -24,6 +24,26 @@ The `params` list should include, at a minimum: eta, the selection strength; b, 
 
 This function takes, as its main input, a selected node, u. Ordinarily this will be a randomly selected node, but the function doesn't require it. Then, a neighbor v of node u is selected at random, proportional to the reproductive rates of u's neighbors. This function returns the state of v, which should ordinarily be assigned to u, completing the death-birth cycle.
 }
+\examples{
+library(igraph)
+library(sdn)
+
+g <- make_lattice(length = 3, dim = 1)
+E(g)$weight <- c(1, 2) # so can tell the difference
+V(g)$state <- c(0, 0, 1)
+params <- list(b = 2, c = 1, eta = 0.025)
+
+                                        # test for 1 nbr
+u <- 1
+
+res <- replicate(100, death_birth(u, g, params)) # s.b. 0
+stopifnot(sum(res) == 0)
+
+                                        # test for 2 nbr
+u <- 2
+res <- replicate(100, death_birth(u, g, params))
+stopifnot(table(res)[1] > 33.3 - 6 & table(res)[1] < 33.3 + 6)
+}
 \references{
 Allen et al. 2017, doi:10.1038/nature21723.
 }

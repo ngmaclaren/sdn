@@ -22,6 +22,22 @@ Calculate the reproduction rate of a node.
 \details{
 The `params` list should include, at a minimum: eta, the selection strength; b, the benefit in the donation game; and c, the cost in the donation game. The essential computation is `1 + eta*(-c*u$state + b*sum(p_ij*V(g)[nbs]$state))`.
 }
+\examples{
+library(igraph)
+library(sdn)
+
+g <- make_lattice(length = 3, dim = 1)
+E(g)$weight <- 1
+V(g)$state <- c(0, 0, 1)
+u <- 2
+params <- list(b = 2, c = 1, eta = 0.025)
+
+## s.b.
+## 1 + eta*( -1*0 + 2*sum( c(0.5, 0.5)*c(0, 1) ) )
+## 1 + eta*(0 + 2*0.5) = 1.025
+
+stopifnot(calc_reprate(u, g, params) == 1.025)
+}
 \references{
 Allen et al. 2017, doi:10.1038/nature21723.
 }

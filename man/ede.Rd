@@ -32,6 +32,20 @@ Given a vector of node states `statevector`, a network `g`, the number of simula
 
 The name for this function follows the pattern ode (ordinary differential equations), sde (stochastic differential equations), ede (evolutionary...), but the 'de' doesn't mean anything.
 }
+\examples{
+library(igraph)
+library(sdn)
+
+g <- make_lattice(length = 3, dim = 1)
+E(g)$weight <- c(1, 2)
+
+statevector <- c(0, 0, 1)
+simtime <- 10
+params <- list(b = 2, c = 1, eta = 0.025)
+
+res <- ede(statevector, g, simtime, death_birth, params, TRUE)
+res # results may vary
+}
 \references{
 Allen et al. 2017, doi:10.1038/nature21723.
 }
