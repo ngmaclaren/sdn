@@ -27,6 +27,21 @@
 ##' @details The `params` list should include, at a minimum: eta, the selection strength; b, the benefit in the donation game; and c, the cost in the donation game. The essential computation is `1 + eta*(-c*u$state + b*sum(p_ij*V(g)[nbs]$state))`.
 ##' @references Allen et al. 2017, doi:10.1038/nature21723.
 ##' @export
+##' @examples
+##' library(igraph)
+##' library(sdn)
+##'
+##' g <- make_lattice(length = 3, dim = 1)
+##' E(g)$weight <- 1
+##' V(g)$state <- c(0, 0, 1)
+##' u <- 2
+##' params <- list(b = 2, c = 1, eta = 0.025)
+##'
+##' ## s.b.
+##' ## 1 + eta*( -1*0 + 2*sum( c(0.5, 0.5)*c(0, 1) ) )
+##' ## 1 + eta*(0 + 2*0.5) = 1.025
+##'
+##' stopifnot(calc_reprate(u, g, params) == 1.025)
 calc_reprate <- function(u, g, params) { # u is a igraph.vs, g is an igraph, eta is a numeric (scalar)
     if(!inherits(u, "igraph.vs")) u <- V(g)[u]
 
@@ -37,7 +52,12 @@ calc_reprate <- function(u, g, params) { # u is a igraph.vs, g is an igraph, eta
     s_i <- strength(g, u)
     p_ij <- w_ij/s_i
 
-    with(params, 1 + eta*(-c*u$state + b*sum(p_ij*V(g)[nbs]$state)))
+    with(
+        params, # b, c, eta
+        1 + eta*(
+            -c*u$state + b*sum(p_ij*V(g)[nbs]$state) # this is node fitness: (cost i pays) + (benefit from nbrs)
+        )
+    )
 }
         
 ##' Death-birth updating
@@ -52,6 +72,24 @@ calc_reprate <- function(u, g, params) { # u is a igraph.vs, g is an igraph, eta
 ##'
 ##' This function takes, as its main input, a selected node, u. Ordinarily this will be a randomly selected node, but the function doesn't require it. Then, a neighbor v of node u is selected at random, proportional to the reproductive rates of u's neighbors. This function returns the state of v, which should ordinarily be assigned to u, completing the death-birth cycle.
 ##' @export
+##' library(igraph)
+##' library(sdn)
+##' 
+##' g <- make_lattice(length = 3, dim = 1)
+##' E(g)$weight <- c(1, 2) # so can tell the difference
+##' V(g)$state <- c(0, 0, 1)
+##' params <- list(b = 2, c = 1, eta = 0.025)
+##' 
+##'                                         # test for 1 nbr
+##' u <- 1
+##' 
+##' res <- replicate(100, death_birth(u, g, params)) # s.b. 0
+##' stopifnot(sum(res) == 0)
+##' 
+##'                                         # test for 2 nbr
+##' u <- 2
+##' res <- replicate(100, death_birth(u, g, params))
+##' stopifnot(table(res)[1] > 33.3 - 6 & table(res)[1] < 33.3 + 6)
 death_birth <- function(u, g, params) {
                                         # node was passed to this function, probably randomly selected but it
                                         # doesn't have to have been.
@@ -92,6 +130,18 @@ death_birth <- function(u, g, params) {
 ##'
 ##' The name for this function follows the pattern ode (ordinary differential equations), sde (stochastic differential equations), ede (evolutionary...), but the 'de' doesn't mean anything. 
 ##' @export
+##' library(igraph)
+##' library(sdn)
+##'
+##' g <- make_lattice(length = 3, dim = 1)
+##' E(g)$weight <- c(1, 2)
+##'
+##' statevector <- c(0, 0, 1)
+##' simtime <- 10
+##' params <- list(b = 2, c = 1, eta = 0.025)
+##'
+##' res <- ede(statevector, g, simtime, death_birth, params, TRUE)
+##' res # results may vary
 ede <- function(statevector, g, simtime, update, params, keep_history = FALSE) {
     stopifnot(length(statevector) == vcount(g))
     stopifnot("weight" %in% names(edge_attr(g)))
@@ -101,7 +151,6 @@ ede <- function(statevector, g, simtime, update, params, keep_history = FALSE) {
     N <- vcount(g)
     
     if(keep_history) S <- matrix(0, nrow = simtime, ncol = N)
-    
 
     for(st in seq(simtime)) {
         if(keep_history) S[st, ] <- V(g)$state
